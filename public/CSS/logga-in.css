@@ -1,0 +1,112 @@
+/*-------------------------main--------------------------*/
+
+.background {
+  position: absolute;
+  top: 0;
+  z-index: -1;
+  height: 100%;
+  width: 100%;
+}
+
+section {
+  padding: 20px 450px;
+}
+
+section i {
+  color: black;
+}
+
+section div {
+  background-color: white;
+  padding: 10px 20px;
+}
+
+.headline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid black;
+  padding: 5px;
+}
+
+.img-logo {
+  margin-right: 25%;
+}
+
+.headline-p {
+  margin-left: 25%;
+}
+
+.logga-in-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.logga-in-main p,
+input,
+button,
+a,
+#h3 {
+  margin-top: 8px;
+}
+
+.logga-in-main a,
+h3 {
+  text-align: center;
+}
+
+section div i {
+  font-size: larger;
+}
+
+#h3 {
+  font-size: medium;
+  color: black;
+}
+
+.main-a {
+  color: black;
+  text-decoration: underline;
+  font-size: x-small;
+}
+
+.logga-in {
+  padding: 10px 114px;
+  background-color: orange;
+}
+
+.opacity-container {
+  opacity: 0.5;
+}
+
+.opacity-container:hover {
+  opacity: 1;
+}
+
+main p {
+  color: black;
+}
+
+p,
+#h2,
+h2 {
+  color: white;
+}
+
+/*----------------------footer--------------------------------*/
+
+footer {
+  padding-top: 60px;
+}
+
+/*-------------------------------------------------------------*/
+
+@media screen and (max-width: 390px) {
+  section {
+    padding: 0;
+    margin-top: 70px;
+  }
+  footer {
+    margin-top: 60%;
+  }
+}

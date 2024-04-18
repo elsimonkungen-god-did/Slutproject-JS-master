@@ -1,0 +1,60 @@
+/*--------------------------main-------------------------------------*/
+
+table {
+  margin: auto;
+  width: 100%;
+}
+
+th {
+  text-align: left;
+  font-size: large;
+}
+tfoot {
+  background-color: rgb(98, 98, 255);
+}
+
+.bg-gray {
+  background-color: rgb(214, 214, 214);
+}
+
+.main-bg {
+  background-image: url("/Slutproject-JS-master/Bilder/th (2).jfif");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+h1 {
+  color: black;
+  font-size: larger;
+  margin-top: 5%;
+}
+
+section {
+  opacity: 0.5;
+  background-color: white;
+  width: 60%;
+  margin: auto;
+  padding: 0 20px 20px 20px;
+}
+
+section:hover {
+  opacity: 1;
+}
+
+/*------------------------footer--------------------------------*/
+
+footer {
+  margin-top: 10%;
+}
+
+/*-----------------------------------------------------------------*/
+
+@media screen and (max-width: 390px) {
+  section {
+    width: 80%;
+  }
+  footer {
+    margin-top: 50%;
+  }
+}
