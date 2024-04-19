@@ -198,26 +198,26 @@ document
  */
 
 
-function loginUser(email, password) {
-  fetch('/login', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email: email, password: password }),
-  })
-  .then(response => {
-      if (!response.ok) {
-          throw new Error('Fel vid inloggning');
-      }
-      return response.json();
-  })
-  .then(data => {
-      console.log(data);
-      // Hantera svaret från servern här
-  })
-  .catch(error => {
-      console.error('Fel vid inloggning:', error);
-      // Hantera fel här
-  });
-}
+// function loginUser(email, password) {
+//   fetch('/login', {
+//       method: 'POST',
+//       headers: {
+//           'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ email: email, password: password }),
+//   })
+//   .then(response => {
+//       if (!response.ok) {
+//           throw new Error('Fel vid inloggning');
+//       }
+//       return response.json();
+//   })
+//   .then(data => {
+//       console.log(data);
+//       // Hantera svaret från servern här
+//   })
+//   .catch(error => {
+//       console.error('Fel vid inloggning:', error);
+//       // Hantera fel här
+//   });
+// }

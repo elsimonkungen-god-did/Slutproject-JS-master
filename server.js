@@ -2,6 +2,8 @@ const express = require('express');
 const mysql = require('mysql');
 // const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 
 
 const app = express();
@@ -31,18 +33,25 @@ app.post('/loggaIn', async (req, res) => {
 
         if (results.length > 0) {
             //Eftersom det bara kan finnas ett lösenord per användarnamn
-            const storedPassword = results[0].lösenord;
+            const hashatlösenord = results[0].lösenord;
             //Här jämförs lösenordet som har skrivits in med det saltade lösenordet på databasen.
-            bcrypt.compare(lösenord, storedPassword, function(error, result) {
+            const hemligtlösenord = "123"
+            bcrypt.compare(lösenord, hashatlösenord, function(error, result) {
                 if (error) {
                     res.status(500).json({ error: 'Ett fel uppstod mellan jämförandet av lösenord och krypterat lösenord' });
                     return;
                 }
                 if (result) {
                     const namn = results[0].kundNamn + results[0].kundEfternamn;
-                    console.log("hejehej")
                     res.json({ success: true, message: `Hej ${namn} !!!` });
                     //Ge även token, ge den tidsbegränsning
+                    let payload = {
+                        sub: results[0].id,             
+                        name: results[0].användarnamn   
+                    };
+                    //Expirationen kommer vara 2 timmar efter token gavs.
+                    let token = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60*2)}, payload, hemligtlösenord);
+                    res.send({ success: true, token: token })
                 } else {
                     res.status(401).json({ error: 'Fel lösenord eller användarnamn' });
                 }
@@ -72,6 +81,36 @@ app.post('/register', async (req, res) => {
         res.status(200).send('User registered successfully');
     });
 });
+
+
+
+// app.get("/auth-test", function (req, res) {
+//     let authHeader = req.headers["authorization"] 
+    
+//     if (authHeader === undefined) {
+//       res.status(401).send("Auth token missing.")
+//     }
+    
+//     let token = authHeader.slice(7) // Tar bort "BEARER " som står i början på strängen.
+//     console.log("token: ", token)
+  
+//     let decoded
+//     try {
+//       // Verifiera att detta är en korrekt token. Den ska vara:
+//       // * skapad med samma secret
+//       // * omodifierad
+//       // * fortfarande giltig
+//       decoded = jwt.verify(token, 'jagtyckeromormar')
+//     } catch (err) {
+//       // Om något är fel med token så kastas ett error.
+  
+//       console.error(err) //Logga felet, för felsökning på servern.
+  
+//       res.status(401).send("Invalid auth token")
+//     }
+  
+//     res.send(decoded) // Skickar tillbaka den avkodade, giltiga, tokenen.
+//   })
 
 // app.post('/läggTillVarukorg', async (req, res) => {
 //     //Det behövs ta in både bilen och använderan som la till bilen i varukorgen
@@ -115,6 +154,16 @@ app.post('/register', async (req, res) => {
 
 
 // );
+
+
+// let decoded
+// try {
+//   decoded = jwt.verify(token, 'din superhemliga secret')
+// } catch (err) {
+//   console.log(err) //Logga felet, för felsökning på servern.
+//   res.status(401).send('Invalid auth token')
+// }
+
 
 
 
