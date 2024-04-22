@@ -1,17 +1,19 @@
+
 const express = require('express');
 const mysql = require('mysql');
-// const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 
-
 const app = express();
-// app.use(bodyParser.urlencoded({ extended: false }))
-// app.use(bodyParser.json());
-app.use(express.urlencoded())
-app.use(express.json())
+
+app.use(express.urlencoded({extended: true})); 
+app.use(express.json()); 
+app.use(bodyParser.json());
 app.use(express.static('public'))
+
+
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -20,11 +22,13 @@ const connection = mysql.createConnection({
     database: "slutprojekt"
 });
 
-app.post('/loggaIn', async (req, res) => {
-    //Funkar det att ha två stycken constanter med namnet sql?? Kolla syntax
-    const { användarnamn, lösenord } = req.body; 
+
+
+
+app.post('/loggaInn', async (req, res) => {
+    const { användarnamn, lösenord } = req.body;
+  
     const sql = `SELECT * FROM inloggning WHERE användarnamn = ?`;
-    console.log(användarnamn)
     connection.query(sql, [användarnamn], (error, results) =>{
         if (error) {
             res.status(500).json({ error: 'Ett fel uppstod med sql' });
@@ -32,10 +36,8 @@ app.post('/loggaIn', async (req, res) => {
         }
 
         if (results.length > 0) {
-            //Eftersom det bara kan finnas ett lösenord per användarnamn
             const hashatlösenord = results[0].lösenord;
-            //Här jämförs lösenordet som har skrivits in med det saltade lösenordet på databasen.
-            const hemligtlösenord = "123"
+
             bcrypt.compare(lösenord, hashatlösenord, function(error, result) {
                 if (error) {
                     res.status(500).json({ error: 'Ett fel uppstod mellan jämförandet av lösenord och krypterat lösenord' });
@@ -43,25 +45,22 @@ app.post('/loggaIn', async (req, res) => {
                 }
                 if (result) {
                     const namn = results[0].kundNamn + results[0].kundEfternamn;
-                    res.json({ success: true, message: `Hej ${namn} !!!` });
-                    //Ge även token, ge den tidsbegränsning
                     let payload = {
                         sub: results[0].id,             
                         name: results[0].användarnamn   
                     };
-                    //Expirationen kommer vara 2 timmar efter token gavs.
-                    let token = jwt.sign({exp: Math.floor(Date.now() / 1000) + (60 * 60*2)}, payload, hemligtlösenord);
-                    res.send({ success: true, token: token })
+                    const token = jwt.sign(payload, "jaggillarsmurfarmedstorahattarochstortskägg", { expiresIn: 7200 })
+                    res.status(200).json({ success: true, token: token }); // Send response with token
                 } else {
                     res.status(401).json({ error: 'Fel lösenord eller användarnamn' });
                 }
-                
             });
         } else {
             res.status(404).json({ error: 'Användare finns inte' });
         }
     });
 });
+
 
 
 

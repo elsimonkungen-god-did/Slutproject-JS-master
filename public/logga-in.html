@@ -80,8 +80,8 @@
               Glöm inte att markera rutan för att gå med i McLaren Plus och se
               till att du får 10 % rabatt på McLaren Store-köp!
             </p>
-            <form id="loggaInFormel">
-              <label for="username">Användarnamn:</label><br />
+            <form id="loggaInFormel" action="/loggaInn" method="POST">
+              <label for="användarnamn">Användarnamn:</label><br />
               <input
                 type="text"
                 id="användarnamn"
@@ -89,7 +89,7 @@
                 required
               /><br /><br />
 
-              <label for="password">Lösenord:</label><br />
+              <label for="lösenord">Lösenord:</label><br />
               <input
                 type="password"
                 id="lösenord"
@@ -184,25 +184,37 @@
       document
         .getElementById("loggaInFormel")
         .addEventListener("submit", function (event) {
-          var formData = new FormData(this);
+          event.preventDefault();
 
-          console.log(formData, JSON.stringify(Object.fromEntries(formData)));
+          var formData = {
+            användarnamn: document.getElementById("användarnamn").value,
+            lösenord: document.getElementById("lösenord").value,
+          };
 
-          // Skicka data till databastjänsten med fetch API
-          fetch("/loggaIn", {
+          fetch("/loggaInn", {
+            method: "POST",
             headers: {
-              "Content-Type": "application/json", // Det här används för att säga åt att "nu används json"
+              "Content-Type": "application/json",
               Accept: "application/json",
             },
-            method: "POST",
-            body: JSON.stringify(Object.fromEntries(formData)), //Här konverterar vi från formdatan vi får till json.
+            body: JSON.stringify(formData),
           })
-            .then((response) => response.text()) //Här konverterar vi svaret från servern till text.
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Något gick fel");
+              }
+              return response.json();
+            })
             .then((data) => {
-              localStorage.setItem("jwt", data);
+              if (data.token) {
+                sessionStorage.setItem("jwt", data.token);
+                console.log("Inloggning lyckades!");
+                // Redirect or perform any other actions you need
+              } else {
+                console.error("Inloggning misslyckades!");
+              }
             })
             .catch((error) => {
-              //Fångar om nåt går fel
               console.error("Något gick fel:", error);
             });
         });
