@@ -198,6 +198,46 @@ document
  */
 
 
+
+      document
+        .getElementById("loggaInFormel")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          var formData = {
+            användarnamn: document.getElementById("användarnamn").value,
+            lösenord: document.getElementById("lösenord").value,
+          };
+
+          fetch("/loggaIn", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("Något gick fel");
+              }
+              return response.json();
+            })
+            .then((data) => {
+              if (data.token) {
+                sessionStorage.setItem("jwt", data.token);
+                console.log("Inloggning lyckades!");
+                // Redirect or perform any other actions you need
+              } else {
+                console.error("Inloggning misslyckades!");
+              }
+            })
+            .catch((error) => {
+              console.error("Något gick fel:", error);
+            });
+        });
+
+
 // function loginUser(email, password) {
 //   fetch('/login', {
 //       method: 'POST',

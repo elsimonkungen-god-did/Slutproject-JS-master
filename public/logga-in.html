@@ -80,7 +80,7 @@
               Glöm inte att markera rutan för att gå med i McLaren Plus och se
               till att du får 10 % rabatt på McLaren Store-köp!
             </p>
-            <form id="loggaInFormel" action="/loggaInn" method="POST">
+            <form id="loggaInFormel" action="/loggaIn" method="POST">
               <label for="användarnamn">Användarnamn:</label><br />
               <input
                 type="text"
@@ -180,44 +180,6 @@
         <a href="">Upphovsrätt Mclaren 2023 |</a>
       </div>
     </footer>
-    <script>
-      document
-        .getElementById("loggaInFormel")
-        .addEventListener("submit", function (event) {
-          event.preventDefault();
-
-          var formData = {
-            användarnamn: document.getElementById("användarnamn").value,
-            lösenord: document.getElementById("lösenord").value,
-          };
-
-          fetch("/loggaInn", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify(formData),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Något gick fel");
-              }
-              return response.json();
-            })
-            .then((data) => {
-              if (data.token) {
-                sessionStorage.setItem("jwt", data.token);
-                console.log("Inloggning lyckades!");
-                // Redirect or perform any other actions you need
-              } else {
-                console.error("Inloggning misslyckades!");
-              }
-            })
-            .catch((error) => {
-              console.error("Något gick fel:", error);
-            });
-        });
-    </script>
   </body>
+  <script src="script.js"></script>
 </html>
