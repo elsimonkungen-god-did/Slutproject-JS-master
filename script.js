@@ -1,9 +1,29 @@
 // Eventlyssnare på knappen som anropar funktionen
 // addProductToLocalStorage() med en hårdkodad produkt.
 document.querySelector(".LT").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "765LT |", price: 200 });
-  location.reload();
+  const data = {
+    produkt: "765LT",
+    pris: 490810,
+  };
+
+  fetch("/läggTillVarukorg", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json", // Ange innehållet som JSON
+    },
+    body: JSON.stringify(data), // Konvertera objektet till JSON-format och inkludera det i body
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Något gick fel");
+      }
+      return response.json();
+    })
+    .catch((error) => {
+      console.error("Fel:", error);
+    });
 });
+
 document.querySelector(".Spider").addEventListener("click", () => {
   addProductToLocalStorage({ name: "765LT Spider |", price: 100 });
   location.reload();
@@ -41,8 +61,6 @@ document.querySelector(".Elva").addEventListener("click", () => {
   location.reload();
 });
 
-
-
 // Exempel på att använda SQL för att lägga till en produkt
 document.querySelector(".LT").addEventListener("click", () => {
   addProductToDatabase("765LT", 382500, "Supercar");
@@ -52,8 +70,8 @@ document.querySelector(".LT").addEventListener("click", () => {
 // Fortsätt med att lägga till resten av produkterna på samma sätt...
 
 /**
- * 
- * 
+ *
+ *
  * Lägger till objektet product i en array i localStorage som heter products.
  * @param {object product} product ett objekt som läggs in i en array i localStorage.
  */
@@ -189,14 +207,12 @@ document
     document.querySelector(".artiklar-main").scrollLeft += 200;
   });
 
-
 /**
- * 
- * Det här är nytt 
- * 
- * 
+ *
+ * Det här är nytt
+ *
+ *
  */
-
 
 // function loginUser(email, password) {
 //   fetch('/login', {
