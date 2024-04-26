@@ -214,6 +214,16 @@ document
  *
  */
 
+<<<<<<< HEAD
+=======
+
+
+
+        
+
+
+
+>>>>>>> 9a8b7edd805498269dba81221977db97ca209ec9
 // function loginUser(email, password) {
 //   fetch('/login', {
 //       method: 'POST',

@@ -82,33 +82,33 @@ app.post("/register", async (req, res) => {
   );
 });
 
-// app.get("/auth-test", function (req, res) {
-//     let authHeader = req.headers["authorization"]
+app.get("/auth-test", function (req, res) {
+  let authHeader = req.headers["authorization"];
 
-//     if (authHeader === undefined) {
-//       res.status(401).send("Auth token missing.")
-//     }
+  if (authHeader === undefined) {
+    res.status(401).send("Auth token missing.");
+  }
 
-//     let token = authHeader.slice(7) // Tar bort "BEARER " som står i början på strängen.
-//     console.log("token: ", token)
+  let token = authHeader.slice(7); // Tar bort "BEARER " som står i början på strängen.
+  console.log("token: ", token);
 
-//     let decoded
-//     try {
-//       // Verifiera att detta är en korrekt token. Den ska vara:
-//       // * skapad med samma secret
-//       // * omodifierad
-//       // * fortfarande giltig
-//       decoded = jwt.verify(token, 'jagtyckeromormar')
-//     } catch (err) {
-//       // Om något är fel med token så kastas ett error.
+  let decoded;
+  try {
+    // Verifiera att detta är en korrekt token. Den ska vara:
+    // * skapad med samma secret
+    // * omodifierad
+    // * fortfarande giltig
+    decoded = jwt.verify(token, "jaggillarsmurfarmedstorahattarochstortskägg");
+  } catch (err) {
+    // Om något är fel med token så kastas ett error.
 
-//       console.error(err) //Logga felet, för felsökning på servern.
+    console.error(err); //Logga felet, för felsökning på servern.
 
-//       res.status(401).send("Invalid auth token")
-//     }
+    res.status(401).send("Invalid auth token");
+  }
 
-//     res.send(decoded) // Skickar tillbaka den avkodade, giltiga, tokenen.
-//   })
+  res.send(decoded); // Skickar tillbaka den avkodade, giltiga, tokenen.
+});
 
 app.post("/läggTillVarukorg", async (req, res) => {
   //Det behövs ta in både bilen och använderan som la till bilen i varukorgen

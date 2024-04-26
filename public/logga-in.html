@@ -209,7 +209,8 @@
               if (data.token) {
                 sessionStorage.setItem("jwt", data.token);
                 console.log("Inloggning lyckades!");
-                // Redirect or perform any other actions you need
+                window.location.href = "index.html";
+                alert("Du har loggats in");
               } else {
                 console.error("Inloggning misslyckades!");
               }
