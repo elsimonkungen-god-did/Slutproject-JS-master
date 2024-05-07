@@ -1,17 +1,15 @@
-// Eventlyssnare på knappen som anropar funktionen
-// addProductToLocalStorage() med en hårdkodad produkt.
 document.querySelector(".LT").addEventListener("click", () => {
   const data = {
     produkt: "765LT",
     pris: 490810,
   };
 
-  fetch("/läggTillVarukorg", {
+  fetch("http://localhost:3000/läggTillVarukorg", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json", // Ange innehållet som JSON
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(data), // Konvertera objektet till JSON-format och inkludera det i body
+    body: JSON.stringify(data),
   })
     .then((response) => {
       if (!response.ok) {
@@ -214,16 +212,6 @@ document
  *
  */
 
-<<<<<<< HEAD
-=======
-
-
-
-        
-
-
-
->>>>>>> 9a8b7edd805498269dba81221977db97ca209ec9
 // function loginUser(email, password) {
 //   fetch('/login', {
 //       method: 'POST',

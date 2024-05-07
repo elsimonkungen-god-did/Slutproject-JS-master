@@ -3,6 +3,7 @@ const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
 const app = express();
 
@@ -10,6 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static("public"));
+app.use(cors());
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -123,6 +125,7 @@ app.post("/läggTillVarukorg", async (req, res) => {
       res.status(500).send("Det blev fel med SQL");
       return;
     }
+    console.log("Bilen har lagts till i varukorgen");
     res.status(200).send("Bilen", "har lagts till i varukorgen");
   });
 });
