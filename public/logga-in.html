@@ -207,7 +207,7 @@
             })
             .then((data) => {
               if (data.token) {
-                sessionStorage.setItem("jwt", data.token);
+                localStorage.setItem("jwt", data.token);
                 console.log("Inloggning lyckades!");
                 window.location.href = "index.html";
                 alert("Du har loggats in");

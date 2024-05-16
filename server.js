@@ -112,21 +112,25 @@ app.get("/auth-test", function (req, res) {
   res.send(decoded); // Skickar tillbaka den avkodade, giltiga, tokenen.
 });
 
-app.post("/läggTillVarukorg", async (req, res) => {
+app.post("/add-to-cart", async (req, res) => {
   //Det behövs ta in både bilen och använderan som la till bilen i varukorgen
   const { produkt, pris } = req.body;
 
+  // validering av token å sånt behövs här.
+
+  console.log(req.body);
+
   // "Inser INTO", användarnamnet samt b
-  const sql = `INSERT INTO varukorg (produkt, pris) 
-                 VALUES (?, ?)`;
+  const sql = `INSERT INTO varukorg (produkt, pris, användarnamn) 
+                 VALUES (?, ?, ?)`;
   //bilen och använderen
-  connection.query(sql, [produkt, pris], (error, results) => {
+  connection.query(sql, [produkt, pris, användarnamn], (error, results) => {
     if (error) {
       res.status(500).send("Det blev fel med SQL");
       return;
     }
     console.log("Bilen har lagts till i varukorgen");
-    res.status(200).send("Bilen", "har lagts till i varukorgen");
+    res.status(200).json("Bilen har lagts till i varukorgen");
   });
 });
 

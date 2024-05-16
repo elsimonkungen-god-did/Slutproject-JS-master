@@ -4,13 +4,26 @@ document.querySelector(".LT").addEventListener("click", () => {
     pris: 490810,
   };
 
-  fetch("http://localhost:3000/läggTillVarukorg", {
+  console.log(data);
+
+  fetch("/add-to-cart", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      //"Authorization": token, //tror att något mer behövs här, kanske bearer
     },
     body: JSON.stringify(data),
   })
+    .then((data) => {
+      if (data.token) {
+        localStorage.setItem("jwt", data.token);
+        alert("Produkten har lagts till");
+      } else {
+        alert(
+          "Du är inte inloggad och kan inte lägga till produkter i varukorg"
+        );
+      }
+    })
     .then((response) => {
       if (!response.ok) {
         throw new Error("Något gick fel");
