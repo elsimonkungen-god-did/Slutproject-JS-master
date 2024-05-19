@@ -33,62 +33,57 @@ document.querySelector(".LT").addEventListener("click", () => {
   läggTillProdukt("765LT");
 });
 
- function läggTillProdukt(produkt) {
+async function läggTillProdukt(produkt) {
+  try {
+    const decodedToken = await autentisering(token);
+
     const formData = {
-      token: token,
+      decodedToken,
       produkt: produkt
     };
-    if(autentisering(token)){
 
-    try {
-      response = fetch("/laggTillVarukorg", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+    const response = await fetch("/laggTillVarukorg", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify(formData),
+    });
 
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = response.json();
-      console.log("Success:", result);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  }
-  else{
-    alert("Du behöver logga in för att lägga in något i varukorgen")
-  }
-  
-}
-
-function autentisering(token){
-  fetch("/auth-test", {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${token}`
-    }
-  })
-  .then(response => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
-    }else{ return true}
-    return response.json();
-  })
-  .then(data => {
-    console.log(data); // användardata från servern
-  })
-  .catch(error => {
-    console.error("Error:", error);
-  });
+    }
 
+    const result = await response.json();
+    console.log("Success:", result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
 }
 
+async function autentisering(token) {
+
+  try {
+    const response = await fetch("/auth-test", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("sfnöskfnsdkjn"); // användardata från servern
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error; // Rethrow the error to be handled by the caller
+  }
+}
 
 
 /**

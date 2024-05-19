@@ -85,17 +85,11 @@ app.post("/register", async (req, res) => {
 
 app.post("/laggTillVarukorg", (req, res) => {
 
-  const { token, produkt } = req.body;
-
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, "jaggillarsmurfarmedstorahattarochstortskägg");
-  } catch (error) {
-    res.status(400).send("Fel med token");
-    return;
-  }
+  const { decodedToken, produkt } = req.body;
+  console.log(decodedToken.användarnamn)
 
   const användarnamn = decodedToken.användarnamn;
+
 
   const sql = `INSERT INTO varukorg (produkt, användarnamn) VALUES (?, ?)`;
 
@@ -110,7 +104,6 @@ app.post("/laggTillVarukorg", (req, res) => {
   });
 });
 
-
 app.get("/auth-test", function (req, res) {
   let authHeader = req.headers["authorization"];
 
@@ -121,12 +114,9 @@ app.get("/auth-test", function (req, res) {
   let token = authHeader.slice(7); // Tar bort "BEARER " som står i början på strängen.
   console.log("token: ", token);
 
-  let decoded;
+  let decoded = {}; //Viktigt att vi ser till att decoded är ett objekt eftersom det är vad token body är.
   try {
-    // Verifiera att detta är en korrekt token. Den ska vara:
-    // * skapad med samma secret
-    // * omodifierad
-    // * fortfarande giltig
+
     decoded = jwt.verify(token, "jaggillarsmurfarmedstorahattarochstortskägg");
   } catch (err) {
     // Om något är fel med token så kastas ett error.
