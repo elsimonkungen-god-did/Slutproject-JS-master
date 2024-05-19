@@ -1,153 +1,164 @@
-document.querySelector(".LT").addEventListener("click", () => {
-  const data = {
-    produkt: "765LT",
-    pris: 490810,
-  };
+const token = localStorage.getItem("jwt");
 
-  console.log(data);
-
-  fetch("/add-to-cart", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      //"Authorization": token, //tror att något mer behövs här, kanske bearer
-    },
-    body: JSON.stringify(data),
-  })
-    .then((data) => {
-      if (data.token) {
-        localStorage.setItem("jwt", data.token);
-        alert("Produkten har lagts till");
-      } else {
-        alert(
-          "Du är inte inloggad och kan inte lägga till produkter i varukorg"
-        );
-      }
-    })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Något gick fel");
-      }
-      return response.json();
-    })
-    .catch((error) => {
-      console.error("Fel:", error);
-    });
-});
 
 document.querySelector(".Spider").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "765LT Spider |", price: 100 });
-  location.reload();
+  läggTillProdukt("765LT Spider");
 });
 document.querySelector(".S-spider").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "720S Spider |", price: 100 });
-  location.reload();
+  läggTillProdukt("720S Spider");
 });
 document.querySelector(".S").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "720S |", price: 100 });
-  location.reload();
+  läggTillProdukt("720S");
 });
 document.querySelector(".Artura").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "Artura |", price: 100 });
-  location.reload();
+  läggTillProdukt("Artura");
 });
 document.querySelector(".GT").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "GT  |", price: 100 });
-  location.reload();
+  läggTillProdukt( "GT");
 });
 document.querySelector(".Senna").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "Mclaren Senna |", price: 100 });
-  location.reload();
+  läggTillProdukt("Mclaren Senna");
 });
 document.querySelector(".Speedtail").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "Speedtail |", price: 100 });
-  location.reload();
+  läggTillProdukt("Speedtail");
 });
 document.querySelector(".Senna-gtr").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "Mclaren Senna GTR |", price: 100 });
-  location.reload();
+  läggTillProdukt("Mclaren Senna GTR");
 });
 document.querySelector(".Elva").addEventListener("click", () => {
-  addProductToLocalStorage({ name: "Elva |", price: 100 });
-  location.reload();
+  läggTillProdukt("Elva");
 });
 
-// Exempel på att använda SQL för att lägga till en produkt
 document.querySelector(".LT").addEventListener("click", () => {
-  addProductToDatabase("765LT", 382500, "Supercar");
-  location.reload();
+  läggTillProdukt("765LT");
 });
 
-// Fortsätt med att lägga till resten av produkterna på samma sätt...
+ function läggTillProdukt(produkt) {
+    const formData = {
+      token: token,
+      produkt: produkt
+    };
+    if(autentisering(token)){
+
+    try {
+      response = fetch("/laggTillVarukorg", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = response.json();
+      console.log("Success:", result);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+  else{
+    alert("Du behöver logga in för att lägga in något i varukorgen")
+  }
+  
+}
+
+function autentisering(token){
+  fetch("/auth-test", {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }else{ return true}
+    return response.json();
+  })
+  .then(data => {
+    console.log(data); // användardata från servern
+  })
+  .catch(error => {
+    console.error("Error:", error);
+  });
+
+}
+
+
 
 /**
  *
- *
- * Lägger till objektet product i en array i localStorage som heter products.
- * @param {object product} product ett objekt som läggs in i en array i localStorage.
- */
-function addProductToLocalStorage(product) {
-  // Hämta ut alla produkter som finns i localStorage
-  // JSON.parse(string) tar en sträng i JSON-format och gör ett javascript-objekt av det.
-  let products = JSON.parse(localStorage.getItem("products"));
+// //  *
+// //  * Lägger till objektet product i en array i localStorage som heter products.
+//  * param {object product} product ett objekt som läggs in i en array i localStorage.
+// //  */
+// function läggTillProdukt(product) {
+//   // Hämta ut alla produkter som finns i localStorage
+//   // JSON.parse(string) tar en sträng i JSON-format och gör ett javascript-objekt av det.
+//   let products = JSON.parse(localStorage.getItem("products"));
 
-  // kontrollera om det fanns en array i localStorage
-  if (products && Array.isArray(products)) {
-    // OM det fanns en array i localStorage, lägg till product.
-    products.push(product);
-  } else {
-    // om det INTE fanns en array i localStorage så skapa en med product i.
-    products = [product];
-  }
+//   // kontrollera om det fanns en array i localStorage
+//   if (products && Array.isArray(products)) {
+//     // OM det fanns en array i localStorage, lägg till product.
+//     products.push(product);
+//   } else {
+//     // om det INTE fanns en array i localStorage så skapa en med product i.
+//     products = [product];
+//   }
 
-  // Spara arrayen med produkter i localStorage igen.
-  // JSON.stringify(objekt) skapar en sträng på JSON-format av ett objekt.
-  localStorage.setItem("products", JSON.stringify(products));
-}
+//   // Spara arrayen med produkter i localStorage igen.
+//   // JSON.stringify(objekt) skapar en sträng på JSON-format av ett objekt.
+//   localStorage.setItem("products", JSON.stringify(products));
+// }
 
-let cartDiv = document.querySelector("#cart-content");
+// let cartDiv = document.querySelector("#cart-content");
 
-//localStorage.getItem("nyckel") hämtar värdet på det som sparats i LocalStorage med nyckeln "nyckel".
-// JSON.parse(string) tar en sträng i JSON-format och gör ett javascript-objekt av det.
-let products = JSON.parse(localStorage.getItem("products"));
+// //localStorage.getItem("nyckel") hämtar värdet på det som sparats i LocalStorage med nyckeln "nyckel".
+// // JSON.parse(string) tar en sträng i JSON-format och gör ett javascript-objekt av det.
+// let products = JSON.parse(localStorage.getItem("products"));
 
-//Variabeln products innehåller nu en array med alla produkter som sparats i LocalStorage.
-console.log(products);
+// //Variabeln products innehåller nu en array med alla produkter som sparats i LocalStorage.
+// console.log(products);
 
-if (Array.isArray(products)) {
-  products.forEach((product) => {
-    cartDiv.insertAdjacentHTML(
-      "beforeend",
-      `<div><button class="button">Namn: ${product.name} Pris: ${product.price}</div>`
-    );
-  });
-  document.querySelectorAll(".button").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.preventDefault();
-      console.log(event.target);
+// if (Array.isArray(products)) {
+//   products.forEach((product) => {
+//     cartDiv.insertAdjacentHTML(
+//       "beforeend",
+//       `<div><button class="button">Namn: ${product.name} Pris: ${product.price}</div>`
+//     );
+//   });
+//   document.querySelectorAll(".button").forEach((button) => {
+//     button.addEventListener("click", (event) => {
+//       event.preventDefault();
+//       console.log(event.target);
 
-      const indexToRemove = products.findIndex(
-        (product) => product.name === event.target.textContent.split(" ")[1]
-      );
+//       const indexToRemove = products.findIndex(
+//         (product) => product.name === event.target.textContent.split(" ")[1]
+//       );
 
-      products.splice(indexToRemove, 1);
+//       products.splice(indexToRemove, 1);
 
-      localStorage.setItem("products", JSON.stringify(products));
-      location.reload();
-    });
-  });
-} else {
-  cartDiv.insertAdjacentHTML("beforeend", `<div>Varukorgen är tom.</div>`);
-}
+//       localStorage.setItem("products", JSON.stringify(products));
+//       location.reload();
+//     });
+//   });
+// } else {
+//   cartDiv.insertAdjacentHTML("beforeend", `<div>Varukorgen är tom.</div>`);
+// }
 // rad 83-97 har gjorts med open ai
 
-let tabortcontents = document.querySelectorAll(".ta-bort-contents");
-tabortcontents.forEach((element) => {
-  element.addEventListener("click", () => {
-    localStorage.clear();
-    location.reload();
-  });
-});
+// let tabortcontents = document.querySelectorAll(".ta-bort-contents");
+// tabortcontents.forEach((element) => {
+//   element.addEventListener("click", () => {
+//     localStorage.clear();
+//     location.reload();
+//   });
+// });
 
 supercars = document.querySelector(".modeller-supercars");
 gt = document.querySelector(".modeller-gt");
@@ -218,33 +229,5 @@ document
     document.querySelector(".artiklar-main").scrollLeft += 200;
   });
 
-/**
- *
- * Det här är nytt
- *
- *
- */
 
-// function loginUser(email, password) {
-//   fetch('/login', {
-//       method: 'POST',
-//       headers: {
-//           'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ email: email, password: password }),
-//   })
-//   .then(response => {
-//       if (!response.ok) {
-//           throw new Error('Fel vid inloggning');
-//       }
-//       return response.json();
-//   })
-//   .then(data => {
-//       console.log(data);
-//       // Hantera svaret från servern här
-//   })
-//   .catch(error => {
-//       console.error('Fel vid inloggning:', error);
-//       // Hantera fel här
-//   });
-// }
+

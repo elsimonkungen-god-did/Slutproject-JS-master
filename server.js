@@ -3,7 +3,7 @@ const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const cors = require("cors");
+// const cors = require("cors");
 
 const app = express();
 
@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static("public"));
-app.use(cors());
+// app.use(cors());
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -42,10 +42,9 @@ app.post("/loggaInn", async (req, res) => {
           return;
         }
         if (result) {
-          const namn = results[0].kundNamn + results[0].kundEfternamn;
           let payload = {
             sub: results[0].id,
-            name: results[0].användarnamn,
+            användarnamn: results[0].användarnamn,
           };
           const token = jwt.sign(
             payload,
@@ -84,6 +83,34 @@ app.post("/register", async (req, res) => {
   );
 });
 
+app.post("/laggTillVarukorg", (req, res) => {
+
+  const { token, produkt } = req.body;
+
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, "jaggillarsmurfarmedstorahattarochstortskägg");
+  } catch (error) {
+    res.status(400).send("Fel med token");
+    return;
+  }
+
+  const användarnamn = decodedToken.användarnamn;
+
+  const sql = `INSERT INTO varukorg (produkt, användarnamn) VALUES (?, ?)`;
+
+  connection.query(sql, [produkt, användarnamn], (error, result) => {
+
+    if (error) {
+      res.status(500).send("Det blev fel med SQL");
+    }
+    if (result) {
+      res.status(200).json("Bilen har lagts till i varukorgen");
+    }
+  });
+});
+
+
 app.get("/auth-test", function (req, res) {
   let authHeader = req.headers["authorization"];
 
@@ -112,27 +139,6 @@ app.get("/auth-test", function (req, res) {
   res.send(decoded); // Skickar tillbaka den avkodade, giltiga, tokenen.
 });
 
-app.post("/add-to-cart", async (req, res) => {
-  //Det behövs ta in både bilen och använderan som la till bilen i varukorgen
-  const { produkt, pris } = req.body;
-
-  // validering av token å sånt behövs här.
-
-  console.log(req.body);
-
-  // "Inser INTO", användarnamnet samt b
-  const sql = `INSERT INTO varukorg (produkt, pris, användarnamn) 
-                 VALUES (?, ?, ?)`;
-  //bilen och använderen
-  connection.query(sql, [produkt, pris, användarnamn], (error, results) => {
-    if (error) {
-      res.status(500).send("Det blev fel med SQL");
-      return;
-    }
-    console.log("Bilen har lagts till i varukorgen");
-    res.status(200).json("Bilen har lagts till i varukorgen");
-  });
-});
 
 // app.get('/seVarukorg', async (req, res) => {
 //     const {användarnamn} = req.body;
