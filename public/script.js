@@ -1,6 +1,5 @@
 const token = localStorage.getItem("jwt");
 
-
 document.querySelector(".Spider").addEventListener("click", () => {
   läggTillProdukt("765LT Spider");
 });
@@ -14,7 +13,7 @@ document.querySelector(".Artura").addEventListener("click", () => {
   läggTillProdukt("Artura");
 });
 document.querySelector(".GT").addEventListener("click", () => {
-  läggTillProdukt( "GT");
+  läggTillProdukt("GT");
 });
 document.querySelector(".Senna").addEventListener("click", () => {
   läggTillProdukt("Mclaren Senna");
@@ -39,14 +38,14 @@ async function läggTillProdukt(produkt) {
 
     const formData = {
       decodedToken,
-      produkt: produkt
+      produkt: produkt,
     };
 
     const response = await fetch("/laggTillVarukorg", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Accept: "application/json"
+        Accept: "application/json",
       },
       body: JSON.stringify(formData),
     });
@@ -63,13 +62,12 @@ async function läggTillProdukt(produkt) {
 }
 
 async function autentisering(token) {
-
   try {
     const response = await fetch("/auth-test", {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     if (!response.ok) {
@@ -85,6 +83,80 @@ async function autentisering(token) {
   }
 }
 
+// Filips  nya galna saker
+
+document.getElementById("cart-content").addEventListener("mouseover", () => {
+  const användarnamn = "Fasterbom"; //för enkelhetens skull
+  hämtaVarukorg(användarnamn);
+});
+
+async function hämtaVarukorg(användarnamn) {
+  try {
+    const response = await fetch(`/cart?användarnamn=${användarnamn}`);
+    const result = await response.json();
+
+    if (result.succes) {
+      visaVarukorgContents(result.data);
+    } else {
+      console.error("Fel vid hämtning av varukorg");
+    }
+  } catch (error) {
+    console.error("Fel vid kommunikation med servern", error);
+  }
+}
+
+function visaVarukorgContents(VarukorgContents) {
+  const VarukorgContentsDiv = document.getElementById("cart-content");
+  VarukorgContentDiv.innerhtml = "";
+
+  if (VarukorgContents.length === 0) {
+    VarukorgContentsDiv.innerHTML = "<p> din varukorg är tom. </p>";
+    return;
+  }
+
+  const ul = document.createElement("ul");
+  VarukorgContents.forEach((produkt) => {
+    const li = document.createElement("li");
+    li.textContent = `Bil: ${produkt}`;
+    ul.appendChild(li);
+  });
+
+  VarukorgContentsDiv.appendChild(ul);
+}
+
+//----
+document.querySelector("ta-bort-contents").addEventListener("click", () => {
+  taBortProdukt();
+});
+
+async function taBortProdukt(produkt) {
+  try {
+    const decodedToken = await autentisering(token);
+
+    const formData = {
+      decodedToken,
+      produkt: produkt,
+    };
+
+    const response = await fetch("/taBortVarukorg", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("Success:", result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
 
 /**
  *
@@ -223,6 +295,3 @@ document
   .addEventListener("click", () => {
     document.querySelector(".artiklar-main").scrollLeft += 200;
   });
-
-
-

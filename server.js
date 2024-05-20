@@ -84,22 +84,53 @@ app.post("/register", async (req, res) => {
 });
 
 app.post("/laggTillVarukorg", (req, res) => {
-
   const { decodedToken, produkt } = req.body;
-  console.log(decodedToken.användarnamn)
+  console.log(decodedToken.användarnamn);
 
   const användarnamn = decodedToken.användarnamn;
-
 
   const sql = `INSERT INTO varukorg (produkt, användarnamn) VALUES (?, ?)`;
 
   connection.query(sql, [produkt, användarnamn], (error, result) => {
-
     if (error) {
       res.status(500).send("Det blev fel med SQL");
     }
     if (result) {
       res.status(200).json("Bilen har lagts till i varukorgen");
+    }
+  });
+});
+
+// inte testat än (demo)
+app.post("/taBortVarukorg", (req, res) => {
+  const { decodedToken, produkt } = req.body;
+
+  const användarnamn = decodedToken.användarnamn;
+
+  const sql = `DELETE FROM varukorg (produkt, användarnamn) WHERE VALUES (?, ?)`;
+
+  connection.query(sql, [produkt, användarnamn], (error, result) => {
+    if (error) {
+      res.status(500).send("Det blev fel med SQL");
+    }
+    if (result) {
+      res.status(200).json("Bilen har lagts till i varukorgen");
+    }
+  });
+});
+
+app.get("/cart", (req, res) => {
+  const { produkt } = req.body;
+  const användarnamn = req.query.användarnamn;
+
+  const sql = `SELECT produkt FROM varukorg WHERE användarnamn = ?`;
+
+  connection.query(sql, [produkt, användarnamn], (error, result) => {
+    if (error) {
+      res.status(500).send("Fel vid borttaggning av produkt");
+    }
+    if (result) {
+      res.status(200).json("Bilen borta :)");
     }
   });
 });
@@ -116,7 +147,6 @@ app.get("/auth-test", function (req, res) {
 
   let decoded = {}; //Viktigt att vi ser till att decoded är ett objekt eftersom det är vad token body är.
   try {
-
     decoded = jwt.verify(token, "jaggillarsmurfarmedstorahattarochstortskägg");
   } catch (err) {
     // Om något är fel med token så kastas ett error.
@@ -128,7 +158,6 @@ app.get("/auth-test", function (req, res) {
 
   res.send(decoded); // Skickar tillbaka den avkodade, giltiga, tokenen.
 });
-
 
 // app.get('/seVarukorg', async (req, res) => {
 //     const {användarnamn} = req.body;
