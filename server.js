@@ -101,36 +101,61 @@ app.post("/laggTillVarukorg", (req, res) => {
   });
 });
 
-// inte testat än (demo)
 app.post("/taBortVarukorg", (req, res) => {
-  const { decodedToken, produkt } = req.body;
+  console.log("SIMON");
+  const { decodedToken } = req.body;
 
   const användarnamn = decodedToken.användarnamn;
 
-  const sql = `DELETE FROM varukorg (produkt, användarnamn) WHERE VALUES (?, ?)`;
-
-  connection.query(sql, [produkt, användarnamn], (error, result) => {
+  const sql = `DELETE FROM varukorg WHERE användarnamn = ?`;
+  connection.query(sql, [användarnamn], (error, result) => {
     if (error) {
+      console.log("LO");
       res.status(500).send("Det blev fel med SQL");
     }
-    if (result) {
+    if (result.affectedRows > 0) {
+      console.log("Produkter borttagna", result);
       res.status(200).json("Bilen har lagts till i varukorgen");
+    } else {
+      return res.status(404).json("Ingen produkt hittades för borttagning");
     }
   });
 });
 
+// app.post("/kop-varukorg", (req, res) => {
+//   const { decodedToken } = req.body;
+
+//   const användarnamn = decodedToken.användarnamn;
+
+//   const sql = `DELETE FROM varukorg WHERE användarnamn = ?`;
+//   connection.query(sql, [användarnamn], (error, result) => {
+//     if (error) {
+//       console.log("LO");
+//       res.status(500).send("Det blev fel med SQL");
+//     }
+//     if (result.affectedRows > 0) {
+//       console.log("Produkter borttagna", result);
+//       res.status(200).json("Bilen har lagts till i varukorgen");
+//     } else {
+//       return res.status(404).json("Ingen produkt hittades för borttagning");
+//     }
+//   });
+// });
+
 app.get("/cart", (req, res) => {
-  const { produkt } = req.body;
   const användarnamn = req.query.användarnamn;
 
-  const sql = `SELECT produkt FROM varukorg WHERE användarnamn = ?`;
+  const sql = `SELECT produkt, pris FROM varukorg WHERE användarnamn = ?`;
 
-  connection.query(sql, [produkt, användarnamn], (error, result) => {
+  connection.query(sql, [användarnamn], (error, result) => {
     if (error) {
+      console.log("ERROR vet ej");
       res.status(500).send("Fel vid borttaggning av produkt");
     }
-    if (result) {
-      res.status(200).json("Bilen borta :)");
+    if (result.length > 0) {
+      res.status(200).json({ success: true, data: result });
+    } else {
+      res.status(200).json({ success: false, message: "Varukorgen tom" });
     }
   });
 });

@@ -69,7 +69,8 @@ nav,
   display: block;
 }
 
-.ta-bort-contents {
+.ta-bort-contents,
+.kop-contents {
   border-bottom: 1px solid black;
   text-align: center;
 }
@@ -198,7 +199,8 @@ li {
 
 .modeller-a:hover,
 li:hover,
-.ta-bort-contents:hover {
+.ta-bort-contents:hover,
+.kop-contents:hover {
   color: orange;
   border-bottom: 1px solid orange;
 }

@@ -33,6 +33,7 @@ document.querySelector(".LT").addEventListener("click", () => {
 });
 
 async function läggTillProdukt(produkt) {
+  alert(`Du har lagt till bilen ${produkt} i din varukorg`);
   try {
     const decodedToken = await autentisering(token);
 
@@ -84,21 +85,43 @@ async function autentisering(token) {
 }
 
 // Filips  nya galna saker
+let varukorgHamtad = false;
 
-document.getElementById("cart-content").addEventListener("mouseover", () => {
-  const användarnamn = "Fasterbom"; //för enkelhetens skull
-  hämtaVarukorg(användarnamn);
+document.querySelector(".ta-bort-contents").addEventListener("click", () => {
+  console.log("Knapp har tryckts");
+  taBortProdukt(token);
 });
 
-async function hämtaVarukorg(användarnamn) {
-  try {
-    const response = await fetch(`/cart?användarnamn=${användarnamn}`);
-    const result = await response.json();
+document.querySelector(".varukorg").addEventListener("mouseover", () => {
+  if (!varukorgHamtad) {
+    hämtaVarukorg(token);
+  }
+});
 
-    if (result.succes) {
+document.querySelector(".kop-contents").addEventListener("click", () => {
+  kopProdukt(token);
+});
+
+async function hämtaVarukorg(token) {
+  try {
+    const decodedToken = await autentisering(token);
+    const användarnamn = decodedToken.användarnamn;
+
+    const response = await fetch(`/cart?användarnamn=${användarnamn}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    const result = await response.json();
+    console.log("Hämtad varukorg:", result);
+
+    if (result.success) {
       visaVarukorgContents(result.data);
+      varukorgHamtad = true;
     } else {
-      console.error("Fel vid hämtning av varukorg");
+      console.error("Fel vid hämtning av varukorg", result.message);
     }
   } catch (error) {
     console.error("Fel vid kommunikation med servern", error);
@@ -106,36 +129,41 @@ async function hämtaVarukorg(användarnamn) {
 }
 
 function visaVarukorgContents(VarukorgContents) {
-  const VarukorgContentsDiv = document.getElementById("cart-content");
-  VarukorgContentDiv.innerhtml = "";
+  const VarukorgContentDiv = document.getElementById("cart-content");
+  VarukorgContentDiv.innerhtml = ""; //PS ha små boxstäver på html INTE STORA
 
   if (VarukorgContents.length === 0) {
-    VarukorgContentsDiv.innerHTML = "<p> din varukorg är tom. </p>";
+    VarukorgContentsDiv.innerhtml = "<p> din varukorg är tom. </p>";
     return;
   }
 
   const ul = document.createElement("ul");
+  let totalsumma = 0;
+
   VarukorgContents.forEach((produkt) => {
     const li = document.createElement("li");
-    li.textContent = `Bil: ${produkt}`;
+    li.textContent = `Bil: ${produkt.produkt}, Pris: ${produkt.pris} kr`;
     ul.appendChild(li);
+
+    totalsumma += produkt.pris;
   });
 
-  VarukorgContentsDiv.appendChild(ul);
+  VarukorgContentDiv.appendChild(ul);
+
+  const totalsummaElement = document.createElement("p");
+  totalsummaElement.textContent = `Summa: ${totalsumma} kr`;
+  VarukorgContentDiv.appendChild(totalsummaElement);
 }
 
 //----
-document.querySelector("ta-bort-contents").addEventListener("click", () => {
-  taBortProdukt();
-});
 
-async function taBortProdukt(produkt) {
+async function taBortProdukt(token) {
   try {
     const decodedToken = await autentisering(token);
 
     const formData = {
       decodedToken,
-      produkt: produkt,
+      // produkt: produkt,
     };
 
     const response = await fetch("/taBortVarukorg", {
@@ -153,6 +181,37 @@ async function taBortProdukt(produkt) {
 
     const result = await response.json();
     console.log("Success:", result);
+    varukorgHamtad = false;
+    hämtaVarukorg(token);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+async function kopProdukt(token) {
+  try {
+    const decodedToken = await autentisering(token);
+    const formData = {
+      decodedToken,
+    };
+
+    const response = await fetch("/kopVarukorg", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("Success:", result);
+    varukorgHamtad = false;
+    hämtaVarukorg(token);
   } catch (error) {
     console.error("Error:", error);
   }
