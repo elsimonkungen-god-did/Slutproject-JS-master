@@ -96,7 +96,11 @@ app.post("/laggTillVarukorg", (req, res) => {
       res.status(500).send("Det blev fel med SQL");
     }
     if (result) {
-      res.status(200).json("Bilen har lagts till i varukorgen");
+      res.status(200).json({
+        succes: true,
+        message: "Bilen har lagts till i varukorgen",
+        produkt,
+      });
     }
   });
 });
@@ -122,37 +126,43 @@ app.post("/taBortVarukorg", (req, res) => {
   });
 });
 
-// app.post("/kop-varukorg", (req, res) => {
-//   const { decodedToken } = req.body;
+app.post("/kopVarukorg", (req, res) => {
+  const { decodedToken } = req.body;
+  const användarnamn = decodedToken.användarnamn;
 
-//   const användarnamn = decodedToken.användarnamn;
+  const sqlGetProdukt = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
+  const sqlDeleteProdukt = `DELETE FROM varukorg WHERE användarnamn = ?`;
 
-//   const sql = `DELETE FROM varukorg WHERE användarnamn = ?`;
-//   connection.query(sql, [användarnamn], (error, result) => {
-//     if (error) {
-//       console.log("LO");
-//       res.status(500).send("Det blev fel med SQL");
-//     }
-//     if (result.affectedRows > 0) {
-//       console.log("Produkter borttagna", result);
-//       res.status(200).json("Bilen har lagts till i varukorgen");
-//     } else {
-//       return res.status(404).json("Ingen produkt hittades för borttagning");
-//     }
-//   });
-// });
+  connection.query(sqlGetProdukt, [användarnamn], (error, products) => {
+    if (error) {
+      console.log("OK");
+      return res
+        .status(500)
+        .send("Det blev fel med SQL vid hämtning av produkter");
+    }
+
+    connection.query(sqlDeleteProdukt, [användarnamn], (error, result) => {
+      if (error) {
+        return res
+          .status(500)
+          .send("Det blev fel med SQL vid borttagning av produkter");
+      }
+
+      res.status(200).json({ success: true, data: products });
+    });
+  });
+});
 
 app.get("/cart", (req, res) => {
   const användarnamn = req.query.användarnamn;
 
-  const sql = `SELECT produkt, pris FROM varukorg WHERE användarnamn = ?`;
+  const sql = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
 
   connection.query(sql, [användarnamn], (error, result) => {
     if (error) {
-      console.log("ERROR vet ej");
-      res.status(500).send("Fel vid borttaggning av produkt");
-    }
-    if (result.length > 0) {
+      console.log("ERROR vet ej", error);
+      res.status(500).json("Fel vid borttaggning av produkt");
+    } else if (result.length) {
       res.status(200).json({ success: true, data: result });
     } else {
       res.status(200).json({ success: false, message: "Varukorgen tom" });
