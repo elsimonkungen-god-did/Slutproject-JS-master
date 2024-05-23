@@ -1,5 +1,4 @@
 const token = localStorage.getItem("jwt");
-let varukorgHamtad = false;
 
 
 async function autentisering(token) {
@@ -54,7 +53,6 @@ document.querySelector(".Senna-gtr").addEventListener("click", () => {
 document.querySelector(".Elva").addEventListener("click", () => {
   läggTillProdukt("Elva");
 });
-
 document.querySelector(".LT").addEventListener("click", () => {
   läggTillProdukt("765LT");
 });
@@ -161,52 +159,90 @@ async function läggTillProdukt(produkt) {
       body: JSON.stringify(formData),
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
     const result = await response.json();
-    console.log("Success:", result);
+    if (result.succes) {
+      alert(result.message);
+      varukorgHamtad = false;
+      await hämtaVarukorg(token);
+    } else {
+      alert("Produkten kunde inte läggas till i varukorgen.");
+    }
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
+async function autentisering(token) {
+  try {
+    const response = await fetch("/auth-test", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+}
 
-// async function hämtaVarukorg(token) {
-//   try {
-//     const decodedToken = await autentisering(token);
-//     const användarnamn = decodedToken.användarnamn;
+// Filips  nya galna saker
+let varukorgHamtad = false;
 
-//     const response = await fetch(`/cart?användarnamn=${användarnamn}`, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Accept: "application/json",
-//       },
-//     });
-//     const result = await response.json();
-//     console.log("Hämtad varukorg:", result);
+document.querySelector(".ta-bort-contents").addEventListener("click", () => {
+  console.log("Knapp har tryckts");
+  taBortProdukt(token);
+});
 
-//     if (result.success) {
-//       visaVarukorgContents(result.data);
-//       varukorgHamtad = true;
-//     } else {
-//       console.error("Fel vid hämtning av varukorg", result.message);
-//     }
-//   } catch (error) {
-//     console.error("Fel vid kommunikation med servern", error);
-//   }
-// }
+document.querySelector(".kop-contents").addEventListener("click", () => {
+  kopProdukt(token);
+});
+
+document.querySelector(".varukorg").addEventListener("mouseover", async () => {
+  if (!varukorgHamtad) {
+    await hämtaVarukorg(token);
+  }
+});
+
+async function hämtaVarukorg(token) {
+  try {
+    const decodedToken = await autentisering(token);
+    const användarnamn = decodedToken.användarnamn;
+
+    const response = await fetch(`/cart?användarnamn=${användarnamn}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    const result = await response.json();
+    console.log("Hämtad varukorg:", result);
+
+    if (result.success) {
+       visaVarukorgContents(result.data);
+      varukorgHamtad = true;
+    } else {
+      console.error("Fel vid hämtning av varukorg", result.message);
+    }
+  } catch (error) {
+    console.error("Fel vid kommunikation med servern", error);
+  }
+}
 
 function visaVarukorgContents(VarukorgContents) {
   const VarukorgContentDiv = document.getElementById("cart-content");
   VarukorgContentDiv.innerhtml = ""; //PS ha små boxstäver på html INTE STORA
 
   if (VarukorgContents.length === 0) {
-    VarukorgContentsDiv.innerhtml = "<p> din varukorg är tom. </p>";
+    VarukorgContentsDiv.innerhtml = "<li> din varukorg är tom. </li>";
     return;
   }
 
@@ -215,7 +251,7 @@ function visaVarukorgContents(VarukorgContents) {
 
   VarukorgContents.forEach((produkt) => {
     const li = document.createElement("li");
-    li.textContent = `Bil: ${produkt.produkt}, Pris: ${produkt.pris} kr`;
+    li.textContent = `Bil: ${produkt.bilNamn}, Pris: ${produkt.pris} kr`;
     ul.appendChild(li);
 
     totalsumma += produkt.pris;
@@ -223,9 +259,11 @@ function visaVarukorgContents(VarukorgContents) {
 
   VarukorgContentDiv.appendChild(ul);
 
-  const totalsummaElement = document.createElement("p");
+  const totalsummaElement = document.createElement("ul");
   totalsummaElement.textContent = `Summa: ${totalsumma} kr`;
   VarukorgContentDiv.appendChild(totalsummaElement);
+
+  console.log("Total summa:", totalsumma);
 }
 
 //----
@@ -253,9 +291,11 @@ async function taBortProdukt(token) {
     }
 
     const result = await response.json();
-    console.log("Success:", result);
-    varukorgHamtad = false;
-    hämtaVarukorg(token);
+    if (result.success) {
+      console.log("Success", result);
+      varukorgHamtad = false;
+      await hämtaVarukorg(token);
+    }
   } catch (error) {
     console.error("Error:", error);
   }
@@ -264,9 +304,7 @@ async function taBortProdukt(token) {
 async function kopProdukt(token) {
   try {
     const decodedToken = await autentisering(token);
-    const formData = {
-      decodedToken,
-    };
+    const formData = { decodedToken };
 
     const response = await fetch("/kopVarukorg", {
       method: "POST",
@@ -282,14 +320,26 @@ async function kopProdukt(token) {
     }
 
     const result = await response.json();
-    console.log("Success:", result);
+    if (result.success) {
+      const products = result.data;
+      let alertMessage = "Du har köpt följande produkter:\n";
+
+      products.forEach((product) => {
+        alertMessage += `Bil: ${product.bilNamn}, Pris: ${product.pris} kr\n`;
+      });
+
+      alert(alertMessage);
+      console.log("Success:", result);
+    } else {
+      alert("Köpet misslyckades.");
+    }
+
     varukorgHamtad = false;
     hämtaVarukorg(token);
   } catch (error) {
     console.error("Error:", error);
   }
 }
-
 
 
 
