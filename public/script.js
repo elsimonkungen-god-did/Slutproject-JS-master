@@ -102,11 +102,11 @@ if (document.querySelector(".Spider")) {
     taBortProdukt(token);
   });
 
-document.querySelector(".varukorg").addEventListener("mousenter", () => {
-  if (!varukorgHamtad) {
-    hamtaVarukorg(token);
-  }
-});
+  document.querySelector(".varukorg").addEventListener("mousenter", () => {
+    if (!varukorgHamtad) {
+      hamtaVarukorg(token);
+    }
+  });
 
 document.querySelector(".kop-contents").addEventListener("click", (event) => {
   event.preventDefault()
@@ -266,8 +266,6 @@ document.querySelector(".varukorg").addEventListener("mouseenter", async () => {
     await hamtaVarukorg(token);
   }
 });
-
-
 
 async function hamtaVarukorg(token) {
   try {
@@ -434,8 +432,8 @@ async function kopProdukt(token) {
           alert("Köpet misslyckades.");
       }
 
-      varukorgHamtad = false;
-      hamtaVarukorg(token);
+    varukorgHamtad = false;
+    hamtaVarukorg(token);
   } catch (error) {
       console.error("Error:", error);
   }
