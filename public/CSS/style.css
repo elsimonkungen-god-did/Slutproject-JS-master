@@ -317,6 +317,14 @@ section a:hover,
   overflow: hidden;
 }
 
+.kvitto p {
+  color: black;
+}
+
+#kvittorubrik {
+  color: black;
+}
+
 .artiklar-main-bilder {
   height: 200px;
   width: 300px;
@@ -342,6 +350,14 @@ h4 {
   margin-left: 70px;
   padding: 20px;
   font-size: large;
+}
+
+.kvitto-divider {
+  .kvitto-divider {
+    border: 0;
+    border-top: 2px solid black; /* Gör strecket svart och 2px tjockt */
+    margin: 10px 0;
+  }
 }
 
 .partner-img,
