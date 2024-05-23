@@ -3,7 +3,6 @@ const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-// const cors = require("cors");
 
 const app = express();
 
@@ -11,8 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.static("public"));
-// app.use(cors());
-
+//Databas
 const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -20,6 +18,7 @@ const connection = mysql.createConnection({
   database: "slutprojekt",
 });
 
+//För att hantera inlogning
 app.post("/loggaInn", async (req, res) => {
   const { användarnamn, lösenord } = req.body;
 
@@ -29,7 +28,6 @@ app.post("/loggaInn", async (req, res) => {
       res.status(500).json({ error: "Ett fel uppstod med sql" });
       return;
     }
-
     if (results.length > 0) {
       const hashatlösenord = results[0].lösenord;
 
@@ -75,10 +73,10 @@ app.post("/register", async (req, res) => {
     [användarnamn, kundNamn, kundEfternamn, email, hashedpasword],
     (error) => {
       if (error) {
-        res.status(500).send("Error registering user");
+        res.status(500).send("Det blev ett fel, prova att byta användarnamn");
         return;
       }
-      res.status(200).send("User registered successfully");
+      res.status(200).send("Grattis du har nu skaffat ett konto, Filip bjuder på en bil.");
     }
   );
 });
@@ -95,16 +93,46 @@ app.post("/laggTillVarukorg", (req, res) => {
     if (error) {
       res.status(500).send("Det blev fel med SQL");
     }
-    if (result) {
+    else if (result) {
       res.status(200).json("Bilen har lagts till i varukorgen");
     }
   });
 });
+//Funktion för att byta användarnamn
+app.put("/bytAnvandarnamn", (req, res) => {
+  const { nyttAnvändarnamn, gammaltAnvändarnamn  } = req.body;
+  console.log(gammaltAnvändarnamn)
+  console.log(nyttAnvändarnamn)
+  //Börja med att kolla om det går med inloggning, eftersom det är där användarnamn måste vara induviduell.
+ 
+  const sql = `UPDATE inloggning set användarnamn = ? where användarnamn = ?`;
+  connection.query(sql, [nyttAnvändarnamn, gammaltAnvändarnamn], (error, result) => {
+    if (error) {
+      alert.apply("Det blev problem, prova att skriva ett annat användarnamn eller logga in igen")
+      res.status(500).json("Det blev fel med SQL");
+    }
+    else if (result) {
+
+      //Om det funkade att byta användarnamn på inloggning, så kommer detta funka också
+      const sql2 = `UPDATE inloggning set användarnamn = ? where användarnamn = ?`;
+      connection.query(sql2, [nyttAnvändarnamn, gammaltAnvändarnamn], (error, result) => {
+        if (error) {
+          alert("Det blev fel, prova att logga in igen.")
+          res.status(500).json("Det blev fel med SQL");
+        }
+        else if (result) {
+          console.log("Det lyckades", result);
+          res.status(200).json("Bilen har lagts till i varukorgen");
+          
+        } 
+      });
+      
+    } 
+  });
+});
 
 app.post("/taBortVarukorg", (req, res) => {
-  console.log("SIMON");
   const { decodedToken } = req.body;
-
   const användarnamn = decodedToken.användarnamn;
 
   const sql = `DELETE FROM varukorg WHERE användarnamn = ?`;
@@ -213,6 +241,7 @@ app.get("/auth-test", function (req, res) {
 //   console.log(err) //Logga felet, för felsökning på servern.
 //   res.status(401).send('Invalid auth token')
 // }
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

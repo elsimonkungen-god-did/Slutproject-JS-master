@@ -40,6 +40,7 @@
 
       <input type="submit" value="Registrera" />
     </form>
+    <h2><a href="index.html">Hem</a></h2>
 
     <script>
       document
@@ -57,14 +58,15 @@
               Accept: "application/json",
             },
             method: "POST",
-            body: JSON.stringify(Object.fromEntries(formData)), //Gör över formdata till json
+            body: JSON.stringify(Object.fromEntries(formData)), // Gör om formdata till json
           })
-            .then((response) => response.text()) //Här konverterar vi svaret från servern till text.
+            .then((response) => response.text()) // Här konverterar vi svaret från servern till text.
             .then((data) => {
               alert(data); // Visa svaret från servern med pop-up
             })
             .catch((error) => {
               console.error("Något gick fel:", error);
+              alert("Testa byta användarnamn");
             });
         });
     </script>
