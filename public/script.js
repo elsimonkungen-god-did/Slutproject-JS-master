@@ -18,7 +18,7 @@ async function autentisering(token) {
     return data;
   } catch (error) {
     console.error("Error:", error);
-    throw error; // Rethrow the error to be handled by the caller
+    throw error; 
   }
 }
 
@@ -61,7 +61,7 @@ document.querySelector(".ta-bort-contents").addEventListener("click", () => {
   taBortProdukt(token);
 });
 
-document.querySelector(".varukorg").addEventListener("mouseover", () => {
+document.querySelector(".varukorg").addEventListener("mousenter", () => {
   if (!varukorgHamtad) {
     hämtaVarukorg(token);
   }
@@ -145,10 +145,12 @@ async function läggTillProdukt(produkt) {
   try {
     const decodedToken = await autentisering(token);
 
+
     const formData = {
       decodedToken,
       produkt: produkt,
     };
+
 
     const response = await fetch("/laggTillVarukorg", {
       method: "POST",
@@ -159,9 +161,9 @@ async function läggTillProdukt(produkt) {
       body: JSON.stringify(formData),
     });
 
+
     const result = await response.json();
     if (result.succes) {
-      alert(result.message);
       varukorgHamtad = false;
       await hämtaVarukorg(token);
       location.reload();
@@ -172,6 +174,7 @@ async function läggTillProdukt(produkt) {
     console.error("Error:", error);
   }
 }
+
 
 async function autentisering(token) {
   try {
@@ -212,10 +215,12 @@ document.querySelector(".varukorg").addEventListener("mouseenter", async () => {
   }
 });
 
+
 async function hämtaVarukorg(token) {
   try {
     const decodedToken = await autentisering(token);
     const användarnamn = decodedToken.användarnamn;
+
 
     const response = await fetch(`/cart?användarnamn=${användarnamn}`, {
       method: "GET",
@@ -227,12 +232,9 @@ async function hämtaVarukorg(token) {
     const result = await response.json();
     console.log("Hämtad varukorg:", result);
 
+
     if (result.success) {
-<<<<<<< HEAD
-       visaVarukorgContents(result.data);
-=======
       visaVarukorgContents(result.data);
->>>>>>> fa85f13bdf61faef4cc4c0121b3d12869755c197
       varukorgHamtad = true;
     } else {
       console.error("Fel vid hämtning av varukorg", result.message);
@@ -242,9 +244,12 @@ async function hämtaVarukorg(token) {
   }
 }
 
+
+
 function visaVarukorgContents(VarukorgContents) {
   const VarukorgContentDiv = document.getElementById("cart-content");
   VarukorgContentDiv.innerhtml = ""; //PS ha små boxstäver på html INTE STORA
+
 
   if (VarukorgContents.length === 0) {
     VarukorgContentDiv.innerhtml = "<li> din varukorg är tom. </li>";
@@ -252,35 +257,45 @@ function visaVarukorgContents(VarukorgContents) {
   }
   const ul = document.getElementById("ul");
 
+
   let totalsumma = 0;
+
 
   VarukorgContents.forEach((produkt) => {
     const li = document.createElement("li");
     li.textContent = `Bil: ${produkt.bilNamn}, Pris: ${produkt.pris} kr`;
     ul.appendChild(li);
 
+
     totalsumma += produkt.pris;
   });
 
+
   VarukorgContentDiv.appendChild(ul);
+
 
   const totalsummaElement = document.getElementById("summa");
   totalsummaElement.textContent = `Summa: ${totalsumma} kr`;
   VarukorgContentDiv.appendChild(totalsummaElement);
 
+
   console.log("Total summa:", totalsumma);
 }
 
+
 //----
+
 
 async function taBortProdukt(token) {
   try {
     const decodedToken = await autentisering(token);
 
+
     const formData = {
       decodedToken,
       // produkt: produkt,
     };
+
 
     const response = await fetch("/taBortVarukorg", {
       method: "POST",
@@ -291,9 +306,11 @@ async function taBortProdukt(token) {
       body: JSON.stringify(formData),
     });
 
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+
 
     const result = await response.json();
     if (result.success) {
@@ -306,10 +323,13 @@ async function taBortProdukt(token) {
   }
 }
 
+
+
 async function kopProdukt(token) {
   try {
     const decodedToken = await autentisering(token);
     const formData = { decodedToken };
+
 
     const response = await fetch("/kopVarukorg", {
       method: "POST",
@@ -320,9 +340,11 @@ async function kopProdukt(token) {
       body: JSON.stringify(formData),
     });
 
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+
 
     const result = await response.json();
     if (result.success) {
@@ -330,16 +352,19 @@ async function kopProdukt(token) {
       // console.log(products);
       let alertMessage = "Du har köpt följande produkter:\n";
 
+
       products.forEach((product) => {
         alertMessage += `Bil: ${product.bilNamn}, Pris: ${product.pris} kr\n`;
       });
       console.log(alertMessage);
+
 
       alert(alertMessage);
       console.log("Success:", result);
     } else {
       alert("Köpet misslyckades.");
     }
+
 
     varukorgHamtad = false;
     hämtaVarukorg(token);
@@ -349,31 +374,28 @@ async function kopProdukt(token) {
 }
 
 
-
    
 
-          document.getElementById("anvandarnamnForm").addEventListener("submit", function (event) {
-
-            event.preventDefault();
-            var nyttAnvandarnamn = document.getElementById("användarnamn").value;
-
-          
-            console.log("Form submitted");
+document.getElementById("anvandarnamnForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+     var nyttAnvandarnamn = document.getElementById("användarnamn").value;
+   
+      console.log("Form submitted");
           
 
-            console.log(nyttAnvandarnamn)
-            skapaNyttAnvandarnamn(nyttAnvandarnamn)
+        console.log(nyttAnvandarnamn)
+          skapaNyttAnvandarnamn(nyttAnvandarnamn)
           
           });
 
-          async function skapaNyttAnvandarnamn(nyttAnvändarnamn) {
-            try {
-              const decodedToken = await autentisering(token);
-              const gammaltAnvändarnamn = decodedToken.användarnamn;
-          
-              const input = {
-                nyttAnvändarnamn,
-                gammaltAnvändarnamn
+        async function skapaNyttAnvandarnamn(nyttAnvändarnamn) {
+          try {
+           const decodedToken = await autentisering(token);
+           const gammaltAnvändarnamn = decodedToken.användarnamn;
+         
+            const input = {
+             nyttAnvändarnamn,
+              gammaltAnvändarnamn
               };
           
               const response = await fetch("/bytAnvandarnamn", {

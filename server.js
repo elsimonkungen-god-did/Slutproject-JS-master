@@ -80,16 +80,18 @@ app.post("/register", async (req, res) => {
     }
   );
 });
-
 app.post("/laggTillVarukorg", (req, res) => {
   const { decodedToken, produkt } = req.body;
   console.log(decodedToken.användarnamn);
 
+
   const användarnamn = decodedToken.användarnamn;
 
-  const sql = `INSERT INTO varukorg (produkt, användarnamn) VALUES (?, ?)`;
 
-  connection.query(sql, [produkt, användarnamn], (error, result) => {
+  const sql = `INSERT INTO varukorg (användarnamn, produkt) VALUES (?, ?)`;
+
+
+  connection.query(sql, [användarnamn, produkt], (error, result) => {
     if (error) {
       res.status(500).send("Det blev fel med SQL");
     }
@@ -103,9 +105,15 @@ app.post("/laggTillVarukorg", (req, res) => {
   });
 });
 
+
+
 app.post("/taBortVarukorg", (req, res) => {
+  console.log("SIMON");
   const { decodedToken } = req.body;
+
+
   const användarnamn = decodedToken.användarnamn;
+
 
   const sql = `DELETE FROM varukorg WHERE användarnamn = ?`;
   connection.query(sql, [användarnamn], (error, result) => {
@@ -122,12 +130,16 @@ app.post("/taBortVarukorg", (req, res) => {
   });
 });
 
+
+
 app.post("/kopVarukorg", (req, res) => {
   const { decodedToken } = req.body;
   const användarnamn = decodedToken.användarnamn;
 
+
   const sqlGetProdukt = `SELECT produkt, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
   const sqlDeleteProdukt = `DELETE FROM varukorg WHERE användarnamn = ?`;
+
 
   connection.query(sqlGetProdukt, [användarnamn], (error, products) => {
     if (error) {
@@ -144,15 +156,20 @@ app.post("/kopVarukorg", (req, res) => {
           .send("Det blev fel med SQL vid borttagning av produkter");
       }
 
+
       res.status(200).json({ success: true, data: products });
     });
   });
 });
 
+
+
 app.get("/cart", (req, res) => {
   const användarnamn = req.query.användarnamn;
 
+
   const sql = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
+
 
   connection.query(sql, [användarnamn], (error, result) => {
     if (error) {
@@ -165,6 +182,7 @@ app.get("/cart", (req, res) => {
     }
   });
 });
+
 
 app.get("/auth-test", function (req, res) {
   let authHeader = req.headers["authorization"];
