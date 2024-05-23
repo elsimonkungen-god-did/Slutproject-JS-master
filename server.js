@@ -76,7 +76,9 @@ app.post("/register", async (req, res) => {
         res.status(500).send("Det blev ett fel, prova att byta användarnamn");
         return;
       }
-      res.status(200).send("Grattis du har nu skaffat ett konto, Filip bjuder på en bil.");
+      res
+        .status(200)
+        .send("Grattis du har nu skaffat ett konto, Filip bjuder på en bil.");
     }
   );
 });
@@ -84,20 +86,18 @@ app.post("/laggTillVarukorg", (req, res) => {
   const { decodedToken, produkt } = req.body;
   console.log(decodedToken.användarnamn);
 
+  const användarnamn = decodedToken.användarnamn; // Tilldela användarnamn från decodedToken
 
-  const användarnamn = decodedToken.användarnamn;
-
-
-  const sql = `INSERT INTO varukorg (användarnamn, produkt) VALUES (?, ?)`;
-
+  const sql = `INSERT INTO varukorg (användarnamn, produkt) VALUES (?, ?)`; // Lägger till en produkt i varukorgstabellen
 
   connection.query(sql, [användarnamn, produkt], (error, result) => {
+    // SQL - frågan körs
     if (error) {
       res.status(500).send("Det blev fel med SQL");
     }
     if (result) {
       res.status(200).json({
-        succes: true,
+        success: true,
         message: "Bilen har lagts till i varukorgen",
         produkt,
       });
@@ -105,84 +105,72 @@ app.post("/laggTillVarukorg", (req, res) => {
   });
 });
 
-
-
 app.post("/taBortVarukorg", (req, res) => {
-  console.log("SIMON");
-  const { decodedToken } = req.body;
-
+  const { decodedToken, produkt } = req.body;
 
   const användarnamn = decodedToken.användarnamn;
 
-
-  const sql = `DELETE FROM varukorg WHERE användarnamn = ?`;
-  connection.query(sql, [användarnamn], (error, result) => {
+  const sql = `DELETE FROM varukorg WHERE användarnamn = ? AND produkt = ? LIMIT 1`; // Tar bort alla produkter från varukorgen för en specifik användare, borttagantet
+  connection.query(sql, [användarnamn, produkt], (error, result) => {
     if (error) {
-      console.log("LO");
-      res.status(500).send("Det blev fel med SQL");
+      res.status(500).send("Det blev fel med SQL"); // Hantering av fel i SQL-frågan
     }
+
     if (result.affectedRows > 0) {
+      // Om SQL-frågan lyckades och rader påverkades, skickas en bekräftelse till användaren
       console.log("Produkter borttagna", result);
       res.status(200).json("Bilen har lagts till i varukorgen");
     } else {
-      return res.status(404).json("Ingen produkt hittades för borttagning");
+      return res.status(404).json("Ingen produkt hittades för borttagning"); // om ingen rad påverkades
     }
   });
 });
-
-
 
 app.post("/kopVarukorg", (req, res) => {
   const { decodedToken } = req.body;
   const användarnamn = decodedToken.användarnamn;
 
-
-  const sqlGetProdukt = `SELECT produkt, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
-  const sqlDeleteProdukt = `DELETE FROM varukorg WHERE användarnamn = ?`;
-
+  const sqlGetProdukt = `SELECT produkt, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`; // Hämtar produkter och deras priser från tabellerna varukorg och bilar för en specifik användare
+  const sqlDeleteProdukt = `DELETE FROM varukorg WHERE användarnamn = ?`; // Tar bort alla produkter från varukorgen för en specifik användare
 
   connection.query(sqlGetProdukt, [användarnamn], (error, products) => {
+    // kör SQL-fråga för att hämta produkter och deras priser
     if (error) {
       return res
         .status(500)
         .send("Det blev fel med SQL vid hämtning av produkter");
     }
-    console.log(products);
-    res.status(200).json({ success: true, data: products });
+    res.status(200).json({ success: true, data: products }); // Skickar tillbaka de hämtade produkterna till klienten
     connection.query(sqlDeleteProdukt, [användarnamn], (error, result) => {
+      // kör SQL-fråga för att ta bort produkterna från varukorgen
       if (error) {
         return res
           .status(500)
           .send("Det blev fel med SQL vid borttagning av produkter");
       }
 
-
-      res.status(200).json({ success: true, data: products });
+      res.status(200).json({ success: true, data: products }); // Skickar en bekräftelse till klienten om att produkterna tagits bort
     });
   });
 });
 
-
-
 app.get("/cart", (req, res) => {
-  const användarnamn = req.query.användarnamn;
+  const användarnamn = req.query.användarnamn; // Hämtar användare från query-parametrarna
 
-
-  const sql = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
-
+  const sql = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`; // SQL-fråga för att hämta bilnamn och pris från varukorg och bilar tabellerna där användarnamnet matchar
 
   connection.query(sql, [användarnamn], (error, result) => {
     if (error) {
       console.log("ERROR vet ej", error);
       res.status(500).json("Fel vid borttaggning av produkt");
     } else if (result.length) {
+      // Skickar tillaka varukorgen innehåll om det finns produkter
       res.status(200).json({ success: true, data: result });
     } else {
-      res.status(200).json({ success: false, message: "Varukorgen tom" });
+      res.status(200).json({ success: false, message: "Varukorgen tom" }); // Skickar svar om varukorgen är tom
     }
   });
 });
-
 
 app.get("/auth-test", function (req, res) {
   let authHeader = req.headers["authorization"];
@@ -207,37 +195,6 @@ app.get("/auth-test", function (req, res) {
 
   res.send(decoded); // Skickar tillbaka den avkodade, giltiga, tokenen.
 });
-
-// app.get('/seVarukorg', async (req, res) => {
-//     const {användarnamn} = req.body;
-
-//     const sql = `SELECT * FROM varukorg WHERE användarnamn = ?`;
-//     connection.query(sql, [användarnamn], (error) => {
-//         if (error) {
-//             res.status(500).json({ error: 'Ett fel Med framtagningen av bilens efternamn'});
-//             return;
-//         }
-//         else if(results.length > 0) {
-//         const bilarna = resultat;
-//                 res.status(200).json(bilarna));
-//             }
-// });
-
-// app.get('/Visa bilar', (res) => {
-//     const(select * from )
-
-// }
-
-// );
-
-// let decoded
-// try {
-//   decoded = jwt.verify(token, 'din superhemliga secret')
-// } catch (err) {
-//   console.log(err) //Logga felet, för felsökning på servern.
-//   res.status(401).send('Invalid auth token')
-// }
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
