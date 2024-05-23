@@ -59,7 +59,7 @@ if (document.querySelector(".Spider")) {
 
   document.querySelector(".varukorg").addEventListener("mousenter", () => {
     if (!varukorgHamtad) {
-      hämtaVarukorg(token);
+      hamtaVarukorg(token);
     }
   });
 
@@ -159,7 +159,7 @@ async function läggTillProdukt(produkt) {
       // om produkten lades till framgångsrikt
       alert(`Du har lagt till bilen ${produkt} i din varukorg`); // visar alert när och vilken produkt som läggs till i varukorgen
       varukorgHamtad = false;
-      await hämtaVarukorg(token); // hämtar den uppdaterade varukorgen
+      await hamtaVarukorg(token); // hämtar den uppdaterade varukorgen
       location.reload();
     } else {
       alert("Produkten kunde inte läggas till i varukorgen.");
@@ -205,17 +205,17 @@ document.querySelector(".kop-contents").addEventListener("click", () => {
 document.querySelector(".varukorg").addEventListener("mouseenter", async () => {
   // när användaren hovrar över knappen
   if (!varukorgHamtad) {
-    await hämtaVarukorg(token);
+    await hamtaVarukorg(token);
   }
 });
 
-async function hämtaVarukorg(token) {
+async function hamtaVarukorg(token) {
   try {
     const decodedToken = await autentisering(token); // Autentiserar användaren med token och väntar på svar
     const användarnamn = decodedToken.användarnamn;
 
-    const response = await fetch(`/cart?användarnamn=${användarnamn}`, {
-      // skrickar en begäran med användarnamnet som query-parametrar till cart
+    const response = await fetch(`/varukorg?användarnamn=${användarnamn}`, {
+      // skrickar en begäran med användarnamnet som query-parametrar till varukorg
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -253,7 +253,7 @@ function visaVarukorgContents(VarukorgContents) {
     knapp.addEventListener("click", async () => {
       try {
         await taBortProdukt(token, produkt.bilNamn); // Anrop funktion för att ta bort produkten
-        await hämtaVarukorg(token); // Hämtar uppdaterade varukorgen
+        await hamtaVarukorg(token); // Hämtar uppdaterade varukorgen
         varukorgHamtad = true;
       } catch (error) {
         console.error("Fel vid borttagning av produkt:", error);
@@ -273,8 +273,6 @@ function visaVarukorgContents(VarukorgContents) {
   const totalsummaElement = document.getElementById("summa");
   totalsummaElement.textContent = `Summa: ${totalsumma} kr`;
   VarukorgContentDiv.appendChild(totalsummaElement);
-
-  console.log("Total summa:", totalsumma); // Loggar totalsumman, behövs det?
 }
 
 //----
@@ -308,7 +306,7 @@ async function taBortProdukt(token, produkt) {
     if (result.success) {
       console.log("Success", result);
       varukorgHamtad = false;
-      await hämtaVarukorg(token);
+      await hamtaVarukorg(token);
       location.reload();
     }
   } catch (error) {
@@ -352,7 +350,7 @@ async function kopProdukt(token) {
     }
 
     varukorgHamtad = false;
-    hämtaVarukorg(token);
+    hamtaVarukorg(token);
   } catch (error) {
     console.error("Error:", error);
   }

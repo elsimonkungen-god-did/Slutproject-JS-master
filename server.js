@@ -154,7 +154,7 @@ app.post("/kopVarukorg", (req, res) => {
   });
 });
 
-app.get("/cart", (req, res) => {
+app.get("/varukorg", (req, res) => {
   const användarnamn = req.query.användarnamn; // Hämtar användare från query-parametrarna
 
   const sql = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`; // SQL-fråga för att hämta bilnamn och pris från varukorg och bilar tabellerna där användarnamnet matchar
