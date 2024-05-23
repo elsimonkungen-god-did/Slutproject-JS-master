@@ -30,10 +30,10 @@ document.querySelector(".Spider").addEventListener("click", () => {
   läggTillProdukt("765LT Spider");
 });
 document.querySelector(".S-spider").addEventListener("click", () => {
-  läggTillProdukt("720S Spider");
+  läggTillProdukt("720 S Spider");
 });
 document.querySelector(".S").addEventListener("click", () => {
-  läggTillProdukt("720S");
+  läggTillProdukt("720 S");
 });
 document.querySelector(".Artura").addEventListener("click", () => {
   läggTillProdukt("Artura");
@@ -164,6 +164,7 @@ async function läggTillProdukt(produkt) {
       alert(result.message);
       varukorgHamtad = false;
       await hämtaVarukorg(token);
+      location.reload();
     } else {
       alert("Produkten kunde inte läggas till i varukorgen.");
     }
@@ -205,7 +206,7 @@ document.querySelector(".kop-contents").addEventListener("click", () => {
   kopProdukt(token);
 });
 
-document.querySelector(".varukorg").addEventListener("mouseover", async () => {
+document.querySelector(".varukorg").addEventListener("mouseenter", async () => {
   if (!varukorgHamtad) {
     await hämtaVarukorg(token);
   }
@@ -227,7 +228,11 @@ async function hämtaVarukorg(token) {
     console.log("Hämtad varukorg:", result);
 
     if (result.success) {
+<<<<<<< HEAD
        visaVarukorgContents(result.data);
+=======
+      visaVarukorgContents(result.data);
+>>>>>>> fa85f13bdf61faef4cc4c0121b3d12869755c197
       varukorgHamtad = true;
     } else {
       console.error("Fel vid hämtning av varukorg", result.message);
@@ -242,11 +247,11 @@ function visaVarukorgContents(VarukorgContents) {
   VarukorgContentDiv.innerhtml = ""; //PS ha små boxstäver på html INTE STORA
 
   if (VarukorgContents.length === 0) {
-    VarukorgContentsDiv.innerhtml = "<li> din varukorg är tom. </li>";
+    VarukorgContentDiv.innerhtml = "<li> din varukorg är tom. </li>";
     return;
   }
+  const ul = document.getElementById("ul");
 
-  const ul = document.createElement("ul");
   let totalsumma = 0;
 
   VarukorgContents.forEach((produkt) => {
@@ -259,7 +264,7 @@ function visaVarukorgContents(VarukorgContents) {
 
   VarukorgContentDiv.appendChild(ul);
 
-  const totalsummaElement = document.createElement("ul");
+  const totalsummaElement = document.getElementById("summa");
   totalsummaElement.textContent = `Summa: ${totalsumma} kr`;
   VarukorgContentDiv.appendChild(totalsummaElement);
 
@@ -322,11 +327,13 @@ async function kopProdukt(token) {
     const result = await response.json();
     if (result.success) {
       const products = result.data;
+      // console.log(products);
       let alertMessage = "Du har köpt följande produkter:\n";
 
       products.forEach((product) => {
         alertMessage += `Bil: ${product.bilNamn}, Pris: ${product.pris} kr\n`;
       });
+      console.log(alertMessage);
 
       alert(alertMessage);
       console.log("Success:", result);

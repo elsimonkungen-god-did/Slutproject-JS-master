@@ -126,17 +126,17 @@ app.post("/kopVarukorg", (req, res) => {
   const { decodedToken } = req.body;
   const användarnamn = decodedToken.användarnamn;
 
-  const sqlGetProdukt = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
+  const sqlGetProdukt = `SELECT produkt, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
   const sqlDeleteProdukt = `DELETE FROM varukorg WHERE användarnamn = ?`;
 
   connection.query(sqlGetProdukt, [användarnamn], (error, products) => {
     if (error) {
-      console.log("OK");
       return res
         .status(500)
         .send("Det blev fel med SQL vid hämtning av produkter");
     }
-
+    console.log(products);
+    res.status(200).json({ success: true, data: products });
     connection.query(sqlDeleteProdukt, [användarnamn], (error, result) => {
       if (error) {
         return res
