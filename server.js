@@ -76,7 +76,9 @@ app.post("/register", async (req, res) => {
         res.status(500).send("Det blev ett fel, prova att byta användarnamn");
         return;
       }
-      res.status(200).send("Grattis du har nu skaffat ett konto, Filip bjuder på en bil.");
+      res
+        .status(200)
+        .send("Grattis du har nu skaffat ett konto, Filip bjuder på en bil.");
     }
   );
 });
@@ -84,20 +86,18 @@ app.post("/laggTillVarukorg", (req, res) => {
   const { decodedToken, produkt } = req.body;
   console.log(decodedToken.användarnamn);
 
+  const användarnamn = decodedToken.användarnamn; // Tilldela användarnamn från decodedToken
 
-  const användarnamn = decodedToken.användarnamn;
-
-
-  const sql = `INSERT INTO varukorg (användarnamn, produkt) VALUES (?, ?)`;
-
+  const sql = `INSERT INTO varukorg (användarnamn, produkt) VALUES (?, ?)`; // Lägger till en produkt i varukorgstabellen
 
   connection.query(sql, [användarnamn, produkt], (error, result) => {
+    // SQL - frågan körs
     if (error) {
       res.status(500).send("Det blev fel med SQL");
     }
     if (result) {
       res.status(200).json({
-        succes: true,
+        success: true,
         message: "Bilen har lagts till i varukorgen",
         produkt,
       });
@@ -227,25 +227,23 @@ connection.query(sqlGetKvitto, [id], (error, results) => {
 });
 });
 
-app.get("/cart", (req, res) => {
-  const användarnamn = req.query.användarnamn;
+app.get("/varukorg", (req, res) => {
+  const användarnamn = req.query.användarnamn; // Hämtar användare från query-parametrarna
 
-
-  const sql = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`;
-
+  const sql = `SELECT bilNamn, pris FROM varukorg, bilar WHERE användarnamn = ? AND varukorg.produkt = bilar.bilNamn`; // SQL-fråga för att hämta bilnamn och pris från varukorg och bilar tabellerna där användarnamnet matchar
 
   connection.query(sql, [användarnamn], (error, result) => {
     if (error) {
       console.log("ERROR vet ej", error);
       res.status(500).json("Fel vid borttaggning av produkt");
     } else if (result.length) {
+      // Skickar tillaka varukorgen innehåll om det finns produkter
       res.status(200).json({ success: true, data: result });
     } else {
-      res.status(200).json({ success: false, message: "Varukorgen tom" });
+      res.status(200).json({ success: false, message: "Varukorgen tom" }); // Skickar svar om varukorgen är tom
     }
   });
 });
-
 
 app.get("/auth-test", function (req, res) {
   let authHeader = req.headers["authorization"];
